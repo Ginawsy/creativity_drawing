@@ -1,0 +1,1002 @@
+<html lang="en">
+
+<!-- February 5, 2021
+based on the novel by: Wilma Bainbridge osf.io/tgavx
+     revised by: Shuyao Wang
+     revised again by: John D. Patterson
+     SEE THIS REPO FOR HOSTING OFF GITHUB, AND GETTING AWAY FROM PAVLOVIA:https://github.com/brianspiering/online-psychology-experiment/blob/master/response.php
+
+code attempts to create for loop of experiment, where each trial participant draws an image from a starting cue
+
+Also note that this code relies heavily on open source Javascript plugin wPaint.
+You can learn more about it here: https://github.com/websanova/wPaint
+
+/-->
+
+<head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />
+	<title>Drawing</title>
+    <link
+      href="wpaint/lib/jquery-ui.css"
+      rel="stylesheet"
+    />
+	<!--- Let's put some CSS in here to make our buttons bigger and prettier -->
+	<style>
+	.animbutton {
+		background-color: #f2f2f2;
+		font-size: 40px;
+		border: 3px solid #000000;
+	}
+	.animbutton:hover {
+		background-color: #cccccc;
+	}
+	.animbutton:active {
+		background-color: #cccccc;
+		box-shadow: 0 5px #666;
+		transform: translateY(4px);
+	}
+  </style>
+
+</head>
+
+<body>
+
+	<form method="post" autocomplete="off">
+	<div id="root"></div>
+
+	<!--- HTML Code -->
+	<!-- Here is all the code that defines the HTML appearance of the page! -->
+
+
+
+		<!-- Put the buttons that start the experiment and progress through the different trials. This will also save the drawings when done drawing. Different buttons will be visible at different points in the experiment.-->
+	<div style="text-align:center">
+		     <span id="welcome" style="font-family:helvetica;font-size:40px;">
+                <!--<br><br><br>-->
+                <br>
+		    <b>Welcome to the experiment!</b>
+		    </span>
+		    
+		    <!--<span id="instructionsNoDraw" style="font-family:helvetica;font-size:20px;" hidden>
+		            <b>Nothing to draw!<br />
+		            <b>Click to advance to see the next image. <br/>
+		            <br />
+    
+	    	</span>-->
+
+		    <!--commenting out ends here-->
+		    
+			<input type="button" name="start" id="startpr" value="Start" class="animbutton" hidden/>
+			<input type="button" name="start" id="startexp" value="Start" class="animbutton" hidden/>
+		    <input type="button" name="practiceButton" id="practiceSubmit" value="Submit" class="animbutton" hidden/>
+		    <input type="button" name="submitDrawing" id="drawSubmit" value="Submit" class="animbutton" hidden />
+			<input type="button" name="EndExperiment" id="submitButton" value="Submit" class="animbutton" hidden />
+        
+			<!-- 	can probably comment out staring here-->
+			<input type="button" name="pre_next_pillows" id="pre_nextbutton1" value="Circle location of any pillows" class="animbutton" hidden />
+			<input type="button" name="pre_next_wallArt" id="pre_nextbutton2" value="Circle location of any wall art" class="animbutton" hidden />
+			<input type="button" name="nextTrial" id="nextTrialButton" value="Next image" class="animbutton" hidden />
+			<input type="button" name="draw_surp" id="draw_surpbutton" value="Surprise! Draw the whole room" class="animbutton"  style = "color: red" hidden />
+			<!-- 	commenting out ends here-->
+        </div>
+	
+		<!-- Code for where to put the drawing interface-->
+		<div style="text-align: center">
+            
+            <!-- Practice drawing instructions-->
+        <div style="text-align: left">
+			<!-- These are the instructions: edit to describe the drawing task you will implement-->
+            <span id="instructionsPractice" style="font-family:helvetica;font-size:20px;" hidden>
+                <!--<br><br><br>-->
+                <br>
+				<b>Drawing Instruction</b>&nbsp;&nbsp;&nbsp;<br />
+				<br />
+                In the experiment, you will be presented with 1 incomplete image each time.&nbsp;&nbsp;&nbsp;<br />
+		        <br />
+		        Please complete the images by filling in the occluded portions with line drawings using your mouse or touch screen.&nbsp;&nbsp;&nbsp;<br />
+		        <br />
+		        Remember to give a quick, intuitive judgement, without thinking too much about it.&nbsp;&nbsp;&nbsp;<br />
+		        <br />
+		        Press START to begin. </b> &nbsp;&nbsp;&nbsp;<br />
+		        
+			</span>
+			</div>
+        
+
+            <!-- If no text will appear alongside creativity drawing canvas, this can be commented out-->
+	    	<!-- <span id="instructionsSurprise" style="font-family:helvetica;font-size:20px;" hidden>
+		            <b>Draw a picture of the whole room you just saw!</b>
+		            <b>Highly accurate AND detailed drawings of the whole room may earn bonus credit on SONA. </b>
+		            <br />
+
+	    	</span>-->
+            <!-- 	commenting out ends here-->
+            
+            <!-- 	can probably comment out staring here-->
+			<!--<span id="imagedisplay" style="position:relative">This is where other experimental info will display-->
+
+			<!--</span>-->
+			<!-- 	commenting out ends here-->
+			
+			
+			<span id="drawingdisplay"  hidden>
+			    <br />
+			    <b>Please complete the images using the paint tools on the left. </b> &nbsp;&nbsp;&nbsp;<br />
+			    <br />
+			    <b>You are only allowed to use BLACK pen for drawing. </b> &nbsp;&nbsp;&nbsp;<br />
+			    <br />
+		        <b>Press SUBMIT button to submit your drawing each time. </b> &nbsp;&nbsp;&nbsp;<br />
+                
+				<div id="wPain" style="position:relative; width:500px; height:500px; margin:50px auto 0 auto; border-style:solid; border-color:#000000; border-width:3px"></div>
+
+               <!-- <img id="canvasImage" src=""/>-->
+               
+                
+			</span>
+
+			<script>
+			    function setClicking() {
+			        console.log("Oye");
+			        clicking = true;
+			    }
+			</script>
+			
+			
+            <script type="importmap">
+            { "imports": {
+              "vue":        "https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.41/vue.esm-browser.prod.js",
+              "vue-router": "https://cdnjs.cloudflare.com/ajax/libs/vue-router/4.1.5/vue-router.esm-browser.min.js"
+            } }
+            </script>
+
+	        <!-- Consent Form-->
+	   <!--<div style="text-align:center">
+	       <span id="consentP" style="font-family:helvetica;font-size:25px;">
+	       <br>
+		   <b>Consent for Exempt Research: The Pennsylvania State University</b>&nbsp;&nbsp;&nbsp;<br />
+		  <!-- You are being invited to volunteer to participate in a research study. This summary explains information about this research. Before beginning the experiment, please read the consent form carefully and indicate whether or not you agree to participate in this study.&nbsp;&nbsp;&nbsp;<br />
+           <br />-->
+	   <div style="text-align: left">
+            <span id="consentP" style="font-family:helvetica;font-size:25px;">
+				<!--<br><br><br>-->
+                <br>
+				<u>Consent for Exempt Research: The Pennsylvania State University</u>&nbsp;&nbsp;&nbsp;<br />
+         	    <br />
+         	    Title of Project: <b>Drawing Creativity Experiment</b> &nbsp;&nbsp;&nbsp;<br />
+         	    <br />
+         	    Principal Investigator: <b>Roger E. Beaty, PhD</b> &nbsp;&nbsp;&nbsp;<br />
+         	    <br />
+         	    Telephone Number: 814-863-8524 &nbsp;&nbsp;&nbsp;<br />
+         	    <br />
+         	    Email: rebeaty@psu.edu&nbsp;&nbsp;&nbsp;<br />
+         	    <br />
+         	    You are being invited to volunteer to participate in a research study. This summary explains information about this research:</strong> &nbsp;&nbsp;&nbsp;<br />
+         	    <ul>
+         	        <li>The purpose of this study is to examine people's creativity of drawing.</li>
+         	        <li>If you agree to participate in this research, you will be asked to complete electronically administered tasks. In general, these tasks will ask you to draw whether you come up with in mind based on some incomleted images.</li>
+         	        <li>Every effort will be made to maintain your confidentiality and anonymity to the degree permitted by the technology used. However, no guarantees can be made regarding the interception of data sent via the Internet by any third parties.</li>
+         	        <li>De-identified experimental data will be stored by our lab for a minimum of 3 years on password-protected computers and/or a secure server.</li>
+         	        <li>Information collected in this project may be shared with other researchers, but we will not share any information that could identify you directly.</li>
+         	    </ul>
+         	    If you have questions or concerns, including about the withdrawal of consent or data, you should contact the Principal Investigator, Dr. Roger Beaty. If you have questions regarding your rights as a research subject or concerns regarding your privacy, you may contact the Penn State University Office for Research Protections at 814-865-1775.&nbsp;&nbsp;&nbsp;<br />
+         	    <br />
+         	    Your participation is voluntary, and you may decide to stop at any time. You do not have to answer any questions that you do not wish to answer.&nbsp;&nbsp;&nbsp;<br />
+         	    <br />
+         	    <b>Please sign in the below button and click “Accept” if you understand the information presented above and consent to participate in our study.</b>&nbsp;&nbsp;&nbsp;<br />
+                <br />
+				<input type="text" name="name" id = "name"/>
+         	    <input type="button" name="accept" id="acceptConsent" value="Accept" class="animbutton" />
+
+
+         	    
+         	</span>
+         	</div>
+         	
+        <div style="text-align: left">
+			<!-- These are the instructions: edit to describe the drawing task you will implement -->
+            <span id="instructionsW" style="font-family:helvetica;font-size:25px;" hidden>
+                <!--<br><br><br>-->
+                <br>
+				<b>Drawing Instruction</b>&nbsp;&nbsp;&nbsp;<br />
+				<br />
+                Okay, now you are ready to get started with the main task.&nbsp;&nbsp;&nbsp;<br />
+                <br />
+		        You will complete 13 rounds of the task. Each round will have 1 incomplete image.&nbsp;&nbsp;&nbsp;<br />
+		        <br />
+		        Please complete the images by filling in the occluded portions with line drawings using your mouse or touch screen.&nbsp;&nbsp;&nbsp;<br />
+		        <br />
+		        Remember to give a quick, intuitive judgement, without thinking too much about it.&nbsp;&nbsp;&nbsp;<br />
+		        <br />
+		        Press START to begin. </b> &nbsp;&nbsp;&nbsp;<br />
+
+			</span>
+			</div>
+
+
+        <!-- These are hidden tags that save the drawings when they're done. Need to make 10 -->
+            <input type="hidden" name="practicedrawing1" id="pDrawId" value="" />
+         <!--   <input type="text" id="canvasImageData"  />-->
+			<input type="hidden" name="drawing1" id="draw1id" value="" />
+			<input type="hidden" name="drawing2" id="draw2id" value="" />
+			<input type="hidden" name="drawing3" id="draw3id" value="" />
+			<input type="hidden" name="drawing4" id="draw4id" value="" />
+			<input type="hidden" name="drawing5" id="draw5id" value="" />
+			<input type="hidden" name="drawing6" id="draw6id" value="" />
+			<input type="hidden" name="drawing7" id="draw7id" value="" />
+			<input type="hidden" name="drawing8" id="draw8id" value="" />
+			<input type="hidden" name="drawing9" id="draw9id" value="" />
+			<input type="hidden" name="drawing10" id="draw10id" value="" />
+			<input type="hidden" name="drawing11" id="draw11id" value="" />
+			<input type="hidden" name="drawing12" id="draw12id" value="" />
+			<input type="hidden" name="drawing13" id="draw13id" value="" />
+			
+
+			<!-- These are hidden tags that save the mouse movements for the drawings. Need to make 10 -->
+			<input type="hidden" name="practicemousemove1" id="pmousemoveid" value="" />
+			<input type="hidden" name="mousemove1" id="mousemove1id" value="" />
+			<input type="hidden" name="mousemove2" id="mousemove2id" value="" />
+			<input type="hidden" name="mousemove3" id="mousemove3id" value="" />
+			<input type="hidden" name="mousemove4" id="mousemove4id" value="" />
+			<input type="hidden" name="mousemove5" id="mousemove5id" value="" />
+			<input type="hidden" name="mousemove6" id="mousemove6id" value="" />
+			<input type="hidden" name="mousemove7" id="mousemove7id" value="" />
+			<input type="hidden" name="mousemove8" id="mousemove8id" value="" />
+			<input type="hidden" name="mousemove9" id="mousemove9id" value="" />
+			<input type="hidden" name="mousemove10" id="mousemove10id" value="" />
+			<input type="hidden" name="mousemove11" id="mousemove11id" value="" />
+			<input type="hidden" name="mousemove12" id="mousemove12id" value="" />
+			<input type="hidden" name="mousemove13" id="mousemove13id" value="" />
+
+			<!-- Save the locations of the edges of the canvas-->
+			<input type="hidden" name="wpaintleft" id="wpaintleftout" value = "" />
+			<input type="hidden" name="wpaintright" id="wpaintrightout" value = "" />
+			<input type="hidden" name="wpainttop" id="wpainttopout" value="" />
+			<input type="hidden" name="wpaintbottom" id="wpaintbottomout" value="" />
+
+
+			<!-- Demographic questions asked at the end of the experiment. Are there any other question you'll want to ask?-->
+			<span id="otherquestions" style="font-family:helvetica" hidden>
+				<br><br><br>
+
+				<b>Age:</b>&nbsp;&nbsp;&nbsp;
+				<input type="text" name="age" id = "age"/><br /><br>
+
+				<b>Gender (M/F/NB; optional):</b>&nbsp;&nbsp;&nbsp;
+				<input type="text" name="gender (optional)" id = "gender"/><br /><br>
+
+				<b>Handedness (L/R):</b>&nbsp;&nbsp;&nbsp;
+				<input type="text" name="handedness" id = "handedness"/><br /><br>
+
+				<b>What type of device are you using?</b><br>
+				<input name="device" type="radio" id="desktop" value="desktop" /><label for="desktop">Desktop Computer</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="device" type="radio" id="laptop" value="laptop" /><label for="laptop"> Laptop</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="device" type="radio" id="tablet" value="tablet" /><label for="tablet"> Tablet</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="device" type="radio" id="smartphone" value="smartphone" /><label for="smartphone"> Smartphone</label><br><br>
+
+				<b>Which input method are you using right now?</b><br>
+				<input name="inputdevice" type="radio" value="mouse" /><label for="desktop">Mouse</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="trackpad" value="trackpad" /><label for="trackpad"> Trackpad</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="joystick" value="joystick" /><label for="joystick"> Joystick</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="nub" value="nub" /><label for="nub"> Keyboard nub</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="finger" value="finger" /><label for="finger"> Finger</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="stylus" value="stylus" /><label for="stylus"> Stylus</label><br><br>
+
+				<b>How would you rate your artistic abilities?</b><br>
+				Very poor <input type="radio" name="artabilities" id="art1" value="1"><label for="art1">1</label>
+				<input type="radio" name="artabilities" id="art2" value="2"><label for="art2"> 2</label>
+				<input type="radio" name="artabilities" id="art3" value="3"><label for="art3"> 3</label>
+				<input type="radio" name="artabilities" id="art4" value="4"><label for="art4"> 4</label>
+				<input type="radio" name="artabilities" id="art5" value="5"><label for="art5"> 5 </label>&nbsp;&nbsp; Very good<br><br>
+
+				<b>Please briefly list any experience you have with artistic training (e.g., art classes). Write N/A if none. </b><br>
+				<input type="text" name="artexperience" id = "artexperience" size="50"/><br /><br>
+			</span>
+		<!-- </div>-->
+
+	<!-- -------------------------------------------------------------------- -->
+	<!-- Here is all the code that does all the behind-the-scenes work! -->
+
+		<!-- This loads in all the plugins necessary. I have JQuery and WPaint hosted in this Pavlovia Directory -->
+		<!-- load jQuery -->
+
+		
+		<!-- jQuery UI -->
+		<script type="text/javascript" src="wpaint/lib/jquery.1.10.2.min.js"></script>
+		
+		
+		<script type="text/javascript" src="wpaint/lib/jquery.ui.core.1.10.3.min.js"></script>
+		<script type="text/javascript" src="wpaint/lib/jquery.ui.widget.1.10.3.min.js"></script>
+		<script type="text/javascript" src="wpaint/lib/jquery.ui.mouse.1.10.3.min.js"></script>
+		<script type="text/javascript" src="wpaint/lib/jquery.ui.draggable.1.10.3.min.js"></script>
+		
+		<!-- wColorPicker -->
+		<link rel="Stylesheet" type="text/css" href="wpaint/lib/wColorPicker.min.css"/>
+		<script type="text/javascript" src="wpaint/lib/wColorPicker.min.js"></script>
+		
+		<!-- wPaint -->
+		<link rel="Stylesheet" type="text/css" href="wpaint/src/wPaint.css"/>
+		<script type="text/javascript" src="wpaint/src/wPaint.js"></script>
+		<script type="text/javascript" src="wpaint/src/wPaint.utils.js"></script>
+		<script type="text/javascript" src="wpaint/plugins/main/src/wPaint.menu.main.js"></script>
+		<!--Commented out additional functionality of wpaint
+		<script type="text/javascript" src="wpaint/plugins/text/src/wPaint.menu.text.js"></script>
+		<script type="text/javascript" src="wpaint/plugins/shapes/wPaint.menu.main.shapes.js"></script>
+		<script type="text/javascript" src="wpaint/plugins/file/src/wPaint.menu.main.file.js"></script>-->
+     
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.8.7/pixi.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/log4javascript/1.4.9/log4javascript.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.2/xlsx.full.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/psychopy@2.0.0/psychopy.js"></script>
+	<!-- -------------------------------------------------------------------- -->
+        <!-- Start of JavaScript Code -->
+		<script type="module">
+		
+		
+	//	npm install --save buffer
+		// notice that Javascript comments use 2 backslashes!!
+		
+        //import { PsychoJS } from './lib/core-2021.1.4.js';
+
+		import { PsychoJS } from './lib/core-2020.2.js';
+		import * as core from './lib/core-2020.2.js';
+		import * as data from './lib/data-2020.2.js';
+		//import { TrialHandler } from './lib/data-2020.2.js';
+		import { ExperimentHandler } from './lib/data-2020.2.js';
+		//import { data } from './lib/psychojs-2021.2.3.js';
+	//	const { TrialHandler } = data;
+		import { Scheduler } from './lib/util-2020.2.js';
+		import * as visual from './lib/visual-2020.2.js';
+		import * as sound from './lib/sound-2020.2.js';
+		import * as util from './lib/util-2020.2.js';
+        //import { createTrialHandler } from 'psychopy/iohub/datastore/util';
+        //import psychopy.iohub.util;
+        //const data = import * as core from './lib/core-2020.2.js';
+        const { abs, sin, cos, PI: pi, sqrt } = Math;
+        const { round } = util;
+        
+        //import { ioHubConnection } from 'psychopy.iohub.client';
+        //const { TrialHandler } = data;
+		//import { createRequire } from "module";
+        //const require = createRequire(import.meta.url);
+        //const yourData = require("./your.json");
+	//	import fs from 'fs';
+	//	const fs = import * as fs from 'fs';
+        //import { createRequire } from 'module';
+        //const require = createRequire(import.meta.url);
+        //const fs = require("fs");
+        
+        import saveAs from './wpaint/lib/FileSaver.js';
+        let expName = 'Drawing Test';
+		let expInfo = {'participant': ''};
+        const psychoJS = new PsychoJS({
+		  debug: true
+		});
+		
+		psychoJS.start({
+          expName: expName,
+          expInfo: expInfo,
+          resources: [
+          ]
+        });
+        
+        var filename = './data/pracfile';
+        const thisExp = new data.ExperimentHandler({
+            
+            "name": expName, 
+            "version": "", 
+            "extraInfo": expInfo, 
+            "runtimeInfo": null, 
+            "originPath": "/creativity_drawing/html/index.html", 
+            "savePickle": true, 
+            "saveWideText": true, 
+            "dataFileName": filename}
+            );
+        //const data = [[1, 2, 3], [4, 5, 6]];
+
+
+
+        // Save the data to a CSV file in the specified location
+        //util.saveAsWideText('./data/myfile.csv', data);
+       // const data = [[1, 2, 3], [4, 5, 6]];
+
+        // Save the data to a CSV file in the specified location
+      //  psychopy.iohub.util.saveAsWideText('/path/to/save/location/myfile.csv', data);
+        // Define the data that you want to save to the CSV file
+
+
+
+      //  psychoJS.experimentLogger.setLevel(core.Logger.ServerLevel.EXP);
+      //  console.log(psychoJS);
+      //  psychoJS.exp = new ExperimentHandler({extraInfo: expInfo, originPath: 'creativity_drawing/data/'});
+      //  util.addInfoFromUrl(expInfo);
+       // psychoJS.filename = "/users/shuyaowang/desktop/DrawingTest/" + expInfo['participant'] + expName + expInfo['date'];
+                //adds participant number 
+        //	psychoJS.exp = new ExperimentHandler({extraInfo: expInfo});
+        //	util.addInfoFromUrl(expInfo);
+        		
+       // csv_file = os.path.join('/Users/shuyaowang/', 'drawing', (document.getElementById('name').value).toString(), '.csv');
+        //const trials = createTrialHandler('./data/file.csv');
+        //trials.saveAsWideText(filePath);
+       // console.log(csv_file);
+        
+		        /* to do:
+                1. make a to-do list of everything you need this code to accomplish and what needs to be done to make it so
+                */
+
+
+		  // Now this is Javascript code that initializes the wPaint interface and gets image saving to work
+
+		  // * If you want to remove certain capabilities, you can do that here with code like:
+		 
+		  // * That will delete the ellipse features. You can look at jQuery.fn.wPaint.menus.main.items to see all your options.
+        //<center id="wPaint-img"></center>
+       // var images = './images/Image1.png';
+		  // initialize wPaint
+		//var imgURLs = new Array();
+		//function(resp) {
+              //   resp= $.parseJSON(resp);
+              //   images.push(resp.img);
+             //    $('#wPaint-img').append($('<img/>').attr('src', image));
+	//	}
+
+	//	for (let im = 0; im < nDrawTrials; im++) {
+		           // imgURLs.push('./images/Image"+(im+1).toString()+".png'); //loops through all image names, adding them to arra
+	//	}
+		
+	   // function loadImgBg () {
+
+      // internal function for displaying background images modal
+      // where images is an array of images (base64 or url path)
+      // NOTE: that if you can't see the bg image changing it's probably
+      // becasue the foregroud image is not transparent.
+         // this._showFileModal('bg', images);
+       // }
+
+		 $("#wPain").wPaint({
+		        
+		        path: 'wpaint/',
+		        bg: '#FFFFFF',
+		        menuOffsetLeft: -50,
+		        menuOffsetTop: -50,
+		        mode: 'pencil',
+		        lineWidth: '3',
+		        strokeStyle: '#000000',
+		        fillStyle: '#000000',
+		       
+		 });
+
+		$("#wPain").wPaint({
+					onShapeDown: function (e) {
+						console.log("Over here");
+						console.log(this.settings.mode + ": " + e.pageX + ',' + e.pageY);
+					},
+					onShapeMove: function (e) {
+						console.log(this.settings.mode + ": " + e.pageX + ',' + e.pageY);
+					},
+					onShapeUp: function (e) {
+						console.log(this.settings.mode + ": " + e.pageX + ',' + e.pageY);
+					}
+		});
+		// delete jQuery.fn.wPaint.menus.main.items.delete
+	
+        
+			$.fn.wPaint.defaults = {
+			  
+			  autoCenterImage: true,
+			  autoScaleImage:  true,
+			  onShapeDown:     setClicking(),               // callback for draw down event
+			  onShapeMove:     null,               // callback for draw move event
+			  onShapeUp:       null                // callback for draw up event
+			};
+            
+			//this hides all the various wapint functions of the main menu. To reactivate any option, comment out line (with '//'')
+			
+               $('.wPaint-menu-icon-name-ellipse').css('display', 'none'); //remove ellipse button
+			   $('.wPaint-menu-icon-name-bucket').css('display', 'none'); //remove fill
+			   $('.wPaint-menu-icon-name-lineWidth').css('display', 'none'); //remove line width
+			   $('.wPaint-menu-icon-name-fillStyle').css('display', 'none'); //remove fill Color
+			   $('.wPaint-menu-icon-name-rectangle').css('display', 'none'); //remove draw filled rectangle
+			   $('.wPaint-menu-icon-name-line').css('display', 'none'); //remove straight line button
+			   //$('.wPaint-menu-icon-name-undo').css('display', 'none');
+			   //$('.wPaint-menu-icon-name-redo').css('display', 'none');
+			   $('.wPaint-menu-icon-name-clear').css('display', 'none');
+		  
+		    
+		  // Track mouse movements
+		  // get canvas position
+		  var rect = "";
+		  var mousemovements = "";
+		  var clicking = false;
+		  var startTime = new Date().getTime();
+          var outputRadio1;
+          var outputRadio2;
+          var outputRadio3;
+          
+		  // Save the drawing in the hidden input when this function is triggered
+		  // This function is updated for Example 3!
+
+          //this saves output of multiple choice question in demographics
+		  function saveRadioValue(name) {
+            var outputRadio;
+            var ele = document.getElementsByName(name);
+             console.log(ele)
+            for(let i = 0; i < ele.length; i++) {
+                if(ele[i].type="radio") {
+
+                    if(ele[i].checked){
+                        outputRadio = ele[i].value;
+
+                        return outputRadio
+                    }
+                }
+            }
+		  }
+
+          //function selects random integer in range [min:max]
+          function randint(min, max) {
+            min = Math.ceil(min);
+            max = Math.floor(max);
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+          }
+          
+		  // this selects a random number based on guassian ; you probably do not need
+          function randn_bm() {
+              let u = 0, v = 0;
+              while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+              while(v === 0) v = Math.random();
+              let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+              num = num / 10.0 + 0.5; // Translate to 0 -> 1
+              if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
+              return num
+          }
+            
+          // shuffle function to randomize order of images
+	      function shuffle(array) {
+	        array.sort(() => Math.random() - 0.5);
+	      }
+            
+          //freezes screen for a 'milliseconds' amount of time
+	      function sleep(milliseconds) {
+	          const date = Date.now();
+	          let currentDate = 0;
+	          do {
+	            currentDate = Date.now();
+	          } while (currentDate - date < milliseconds);
+	        }
+
+          //function saves demographic data to CSV, shows debriefing screen, ends experiment, and redirects back to SONA
+		  function quitPsychoJS() {
+		    thisExp.addData('age',document.getElementById("age").value);
+            psychoJS.experiment.addData('age',document.getElementById("age").value);
+            psychoJS.experiment.addData('gender',document.getElementById("gender").value);
+            psychoJS.experiment.addData('handedness',document.getElementById("handedness").value);
+            psychoJS.experiment.addData('current_device',outputRadio1 = saveRadioValue("device"));//calls function to save radioData
+            psychoJS.experiment.addData('input_method',outputRadio1 = saveRadioValue("inputdevice"));
+            psychoJS.experiment.addData('art_ability',outputRadio1 = saveRadioValue("artabilities"));
+            psychoJS.experiment.addData('art_training',document.getElementById("artexperience").value);
+            //psychoJS.experiment.name(document.getElementById("age").value);
+		    // Check for and save orphaned data
+		   
+		    if (psychoJS.experiment.isEntryEmpty()) {
+		      psychoJS.experiment.nextEntry();
+		    }
+		    //psychoJS.experiment.saveAsWideText((filename + ".csv"), {"delim": "auto"});
+            //psychoJS.experiment.saveAsPickle(filename);
+		    psychoJS.experiment.save();
+		    //psychoJS.window.close();
+		    //psychoJS.quit({message: 'mess', isCompleted: true});
+             
+            //this alert is the debriefing screen. Chnage the wording accordingly or remove if you do not use
+			//alert("This concludes the study!\nWe were interested in how a surprising interuption damaged your memory of a scene. That is why we had a pop up appear on the last trial. We were hoping that this irrelevant pop up would have a minimal impairment on one's memory. \nOn the next box, click 'Leave' to be redirected back to SONA. \nThank you and have a nice day!");
+			//window.onbeforeunload = null;
+	    
+	        //redirect to SONA and grant credit (will need to change URL to match your directory)
+	        window.location.assign('https://pennstate.sona-systems.com/webstudy_credit.aspx?experiment_id=2985&credit_token=8444538ba59b48ceb2c075b0e341f28d&survey_code=' + expInfo['participant'])
+			window.onbeforeunload = null;
+            
+	        //return Scheduler.Event.QUIT;
+		  }
+
+		  //saving the practice drawing
+		  var saveTime, thinkingTime, drawingStart, drawingTime; //note that you have to predfine any variable you create in JavaScript
+		  function savePracImg() {
+		//	var d = new Date();
+			//drawingStart = d.getTime();
+		    //thinkingTime = drawingStart - startTime;
+			//RT = saveTime - drawingStart;
+		    // find which hidden element to update based on the trial number
+		    
+		    document.getElementById('pDrawId').value = $('#wPain').wPaint('image'); //call which drawing holder to use (note here it is pDrawID)
+            $("#canvas").attr('src', document.getElementById('pDrawId').value);
+            
+           // $("#canvasImageData").val(document.getElementById('pDrawId').value);
+            //var code = "<img src='" + $("#canvasImage") + "' width=500 height=500>";
+            //document.getElementById('imagedisplay').innerHTML = code;
+		    document.getElementById('pmousemoveid').value = mousemovements;
+
+		    // Get the location of the wPaint canvas and save it in the hidden inputs
+		    var rect = document.getElementById('wPain').getBoundingClientRect();
+		    document.getElementById('wpaintleftout').value = rect.left;
+		    document.getElementById('wpaintrightout').value = rect.right;
+		    document.getElementById('wpainttopout').value = rect.top;
+		    document.getElementById('wpaintbottomout').value = rect.bottom;
+
+            var d = new Date();
+		    saveTime = d.getTime() - startTime;
+		    //DownloadCanvasAsImage();
+		   // drawingTime = saveTime - thinkingTime;
+		    
+            //$("#canvasImage").attr('src', imageData);
+            //$(“#canvasImageData”).val(imageData);
+            //const canvas = 
+           // const canvas = document.getElementById('myCanvas');
+            //DownloadCanvasAsImage();
+		    // clear the interface and the mouse movements for the new image!
+		    //var image = $('#wPain').toDataURL("image/png").replace("image/png", "image/octet-stream"); 
+		    //window.location.href=image; // it will save locall
+		    
+		    $('#wPain').wPaint('clear');
+		    mousemovements = '';
+		    var d = new Date();
+		    startTime = d.getTime();
+            //var wp = $("#container").wPaint({
+                   // image: "data:image/png;base64,base64 encoded string of the image here"
+                  //  });
+            //function base64ToFile((base64 data: document.getElementById('pDrawId').value).toString(), myFileNameWithdotExtention: 'prac.png',
+                            
+            //save drawing data to final CSV
+            //psychoJS.experiment.addData("foo", $('#canvasImage').val(imageData);
+			psychoJS.experiment.addData('user_drawing', document.getElementById('pDrawId').value);
+			//const fs = require('fs');
+// Create a base64 string from an image => ztso+Mfuej2mPmLQxgD ...
+           // const base64 = fs.readFileSync("path-to-image.jpg", "base64");
+// Convert base64 to buffer => <Buffer ff d8 ff db 00 43 00 ...
+           // const buffer = Buffer.from(base64, "base64");
+           // fs.writeFileSync("new-path.jpg", buffer);
+			//var img = document.getElementById('pDrawId').value;
+			//var data = img.replace(/^data:image\/png;base64,/, "");
+			//data  +=  data.replace('+', ' ');
+			//var buf = new Buffer(data, 'base64')
+		//	fs.writeFile('imagePra.png', buf);
+		var base = (document.getElementById('pDrawId').value).toString();
+		var base_string = base.replace('data:image/png;base64,', '');
+		let imgData = atob(base_string);
+		var pracname = (document.getElementById('name').value).toString() + '_' + (util.MonotonicClock.getDateStr()).toString() + '_pracimage.png';
+	    let buffer = new ArrayBuffer(imgData.length);
+		let view = new Uint8Array(buffer);
+	    
+		for (let i=0; i<imgData.length; i++) {
+            view[i] = imgData.charCodeAt(i);
+        }
+        let blob = new File([buffer], {type: 'image/png'});
+        //let saveAs = import {saveAs} from './wpaint/lib/FileSaver.js';
+        //Servermanager = new ServerManager();
+        //Servermanager.uploadAudioVideo(blob, pracname, waitForCompletion = true);
+
+        saveAs(blob, pracname);
+
+	
+        
+        
+       // test(document.getElementById('pDrawId').value);
+        
+        
+		//    getFileFromBase64((document.getElementById('pDrawId').value).toString(),'pac.png')
+			psychoJS.experiment.addData('user_mouse', document.getElementById('pmousemoveid').value);
+		//	psychoJS.experiment.addData('thinking_time', thinkingTime);
+		//	psychoJS.experiment.addData('drawing_time', drawingTime); //time at they click submit
+			psychoJS.experiment.addData('whole_process_time_in_seconds', saveTime/1000);
+    
+		    RunInstructions(); //runs next part of experiment: the instructions screen
+		  }
+          //function getFileFromBase64(string64, fileName) {
+                //  const trimmedString = string64.replace('data:image/png;base64,', '/');
+                //  const imageContent = atob(trimmedString);
+                //  const buffer = new ArrayBuffer(imageContent.length);
+                //  const view = new Uint8Array(buffer);
+                
+               //   for (let n = 0; n < imageContent.length; n++) {
+                //    view[n] = imageContent.charCodeAt(n);
+                //  }
+                //  const type = 'image/png';
+                //  const blob = new Blob([buffer], { type });
+                //  return new File([blob], fileName, { lastModified: new Date().getTime(), type });
+         // } 
+
+        
+          //saves non-practice images
+		  function saveImg() {
+		    //var d = new Date();
+			//drawingStart = d.getTime();
+		   // thinkingTime = drawingStart - startTime;
+			
+		    // find which hidden element to update based on the trial number
+		    var drawid = 'draw' + drawCount + 'id';
+		    var moveid = 'mousemove' + drawCount + 'id';
+		    //moveid = 'mousemove1id';
+		    
+		    document.getElementById(drawid).value =  $('#wPain').wPaint('image');
+		    var exname = (document.getElementById('name').value).toString() + '_' + (util.MonotonicClock.getDateStr()).toString() + '_image' + Trialnumber.toString() + '.png';
+		    var base = (document.getElementById(drawid).value).toString();
+    		var base_string = base.replace('data:image/png;base64,', '');
+    		let imgData = atob(base_string);
+    		let buffer = new ArrayBuffer(imgData.length);
+    		let view = new Uint8Array(buffer);
+    		for (let i=0; i<imgData.length; i++) {
+                view[i] = imgData.charCodeAt(i);
+            }
+            let blob = new File([buffer], {type: 'image/png'});
+           // let saveAs = import {saveAs} from './wpaint/lib/FileSaver.js';
+            saveAs(blob, exname);
+
+		    document.getElementById(moveid).value = mousemovements;
+		    document.getElementById('wpaintleftout').value = rect.left;
+		    document.getElementById('wpaintrightout').value = rect.right;
+		    document.getElementById('wpainttopout').value = rect.top;
+		    document.getElementById('wpaintbottomout').value = rect.bottom;
+		    var d = new Date();
+		    saveTime = d.getTime() - startTime;
+		    //DownloadCanvasAsImage();
+		    //drawingTime = saveTime - thinkingTime;
+		    
+		    // clear the interface and the mouse movements for the new image!
+
+		    $('#wPain').wPaint('clear');
+		    mousemovements = '';
+		    var d = new Date();
+		    startTime = d.getTime();
+		    psychoJS.experiment.nextEntry();
+	
+		    console.log(Trialnumber);
+		    //saves last trial's data to CSV
+		    psychoJS.experiment.addData('trial',Trialnumber);
+	        psychoJS.experiment.addData('seen_image',imgURLs[Trialnumber-1]); //saves to CSV which image was shown (may want to note which starting line was given)
+			psychoJS.experiment.addData('user_drawing', document.getElementById(drawid).value);
+			psychoJS.experiment.addData('user_mouse', document.getElementById(moveid).value);
+			//psychoJS.experiment.addData('thinking_time', thinkingTime);
+		//	psychoJS.experiment.addData('drawing_time', drawingTime); //time at they click submit
+			psychoJS.experiment.addData('whole_process_time_in_seconds', saveTime/1000);
+			
+		    Trialnumber = Trialnumber + 1; //adds counter to proceed to next trial
+		    RunExperiment(); //calls run Experiment to run next trial
+		  }
+          
+
+        
+		  // Track when they're holding the mouse button down, here it starts to save mousemovements (only id made in drawing canvas)
+		  $(document).mousedown(function(){
+		  //$("#drawingdisplay").mousedown(function(){
+		    clicking = true;
+		  });
+		  
+          // Save where the mouse is when it's moving while clicked
+		  $(document).mousemove(function(e){
+		    var d = new Date();   // get the time
+		    var padding = 100; // extra pixel padding so don't miss drawing
+
+		    if(clicking == false) return; // don't save data when the mouse isn't clicked
+
+		    // Get the x and y coordinates of the click
+		    var xcoord = e.pageX;
+		    var ycoord = e.pageY;
+
+		        var timeDiff = d.getTime() - startTime; //saves time of mousemovement
+		        // Save the mouse movement as: X,Y,milliseconds-from-start;
+		        console.log("(" + xcoord + "," + ycoord + ")");
+		        mousemovements = mousemovements + xcoord + "," + ycoord + "," + timeDiff + ";";
+		  });
+
+		  $(document).mouseup(function(){
+		    //console.log(clicking);
+		    clicking = false;
+		    // Add in a marker that a drawing stroke ended: 9999,9999,9999;
+		    mousemovements = mousemovements + "9999,9999,9999;";
+		  });
+
+		  /*******************************************************/
+          //parameters for running experiment
+          
+          //probably can comment from here:
+            var conditionIdentifier = randn_bm(); //determines which condition to run if multiple
+            console.log(conditionIdentifier); //shows output in log (Press Ctrl+Shift+'j' on PC to open console)
+            var condition = 'wall art'; //changes to particular condition 
+          	if (condition =='pillow'){
+    		  var buttonText = 'pre_nextbutton1';
+		      var buttonText = 'pre_nextbutton2';
+		     }
+          //to here
+          
+          var instructionText = 'instructionsW';
+          var instructionPtext = 'instructionsP';
+		  var Trialnumber = 1; //count variable to track the trial number
+		  var nDrawTrials = 13; //change to however many drawing trials you will need
+		  var drawCount = 0; //counter to save images to each data holder
+		  var Trialmax = nDrawTrials+1; //this is the the trial where questionnaire appears (set to nDrawingTrials+1 for extra instructions canvas)
+
+		  //nDrawTrials = 2; //for debugging
+		  //var stimTime = 2000; // for how many ms do you want to show the image or blank screen? may probably delete
+
+		  //make sure images are the same dimensions
+		  var imgURLs = new Array();
+		  for (let im = 0; im < 13; im++) {
+		        imgURLs.push("./images/Image"+(im+1).toString()+".png");
+		  }
+
+		  //for loop to call image names loaded into canvas (JavaScript is 0-ordered)
+        
+          shuffle(imgURLs); //shuffles order of drawing trials
+		  console.log(imgURLs);
+
+		 function runPInstructions(){
+		          document.getElementById('welcome').hidden = true; 
+		          document.getElementById('consentP').hidden = true; 
+		          document.getElementById('acceptConsent').hidden = true; 
+		            
+		          document.getElementById('instructionsPractice').hidden = false;
+		          document.getElementById('startpr').hidden = false; 
+		  }
+		  //start of functions that run different aspects of experiment
+	      function runPractice(){
+		        	$("#wPain").wPaint("image", imgURLs[0]);
+		        	var d = new Date();
+		            startTime = d.getTime();
+					//hides all consent form information
+	                //document.getElementById('consentP').hidden = true; 
+		            //document.getElementById('acceptConsent').hidden = true; 
+		            
+		            //reveals practice screen 
+		            document.getElementById('instructionsPractice').hidden = true; 
+		            document.getElementById('startpr').hidden = true;
+		            document.getElementById('drawingdisplay').hidden = false;
+		            document.getElementById('practiceSubmit').hidden = false; //pressing this button runs 'RunInstructions'
+		            //var wp = $("#container").wPaint({
+                    //image: "data:image/png;base64,base64 encoded string of the image here"
+                   // });
+
+                    //var imageData = wp.wPaint("image");
+                   // $("#someImage").attr("src", imageData);
+		            
+                    //var d = new Date();
+		        //	drawingStart = d.getTime() - startTime;
+
+	      }
+	      //start of function that runs instructions screen
+          function RunInstructions(){
+                    //Hides Practice screen Instruction
+                    document.getElementById('instructionsPractice').hidden = true;
+		            document.getElementById('drawingdisplay').hidden = true;
+		            document.getElementById('practiceSubmit').hidden = true;
+		            
+		            //Reveals instructions screen
+		            document.getElementById(instructionText).hidden = false;
+		            document.getElementById('startexp').hidden = false; // pressing this button starts function 'RunExperiment'
+		            //document.getElementById('imagedisplay').innerHTML = '';
+          }
+
+		//this function runs for each trial of the experiment
+		    //var trialStart, drawingStart;
+			function RunExperiment(){
+			    
+				//drawingStart = trialStart;
+				//+ stimTime;
+
+		        console.log(Trialnumber);  //trqacks trial number in console
+		     
+		     //hides instructions text and previous canvas [will probably need to change]
+             document.getElementById(instructionText).hidden = true;
+             document.getElementById('startexp').hidden = true; // take away the start button
+             document.getElementById('drawSubmit').hidden = true; // Reveal the next button
+             document.getElementById('nextTrialButton').hidden = true;
+             //changeBack(Trialnumber-1);
+             //document.getElementById('instructionsSurprise').hidden = true;
+             //document.getElementById('instructionsNoDraw').hidden = true;
+
+		      //reveals demographics screen (at end of experiment)
+		      if(Trialnumber==Trialmax){
+		        document.getElementById('drawingdisplay').hidden = true;
+		        document.getElementById('otherquestions').hidden = false;
+		        document.getElementById('drawSubmit').hidden = true; // Hide the next button
+		        document.getElementById('submitButton').hidden = false; // Reveal the submit button
+		      }
+		      
+		      
+		    //else runs next trial
+		      else{
+		        displayImage(Trialnumber-1);
+		        drawCount+=1; //adds number ahead of drawing trial
+		      //  var d = new Date();
+		     //   drawingStart = d.getTime() - startTime;
+		        // Show the image for stimtime 
+		       // document.getElementById('drawingdisplay').hidden = false;
+		        //displayImage(Trialnumber-1);
+		        //$("#wPain").wPaint('image', imgURLs[1]);
+		        //var imageData = $("#wPain").wPaint("image");
+		       // $("#canvasImage").attr('src', imageData);
+		        //document.getElementById('drawSubmit').hidden = false;
+		        //if there is a delay between trials, you might be able to keep this code structure 
+		        //and have display image show a white square (the equivalent of a blank screen)
+		        //displayImage(Trialnumber-1); // Show Current image based on index value entered in funnction
+		        //changeBack(Trialnumber-1); 
+		        // wait the stimtime, then go to the next phase of the experiment
+                //setTimeout(waitItOut,stimTime);
+		    }
+         
+		  } //end of function
+
+		  //function waitItOut(){
+		      //document.getElementById('imagedisplay').innerHTML = ''; // hide the image
+		     // document.getElementById('drawingdisplay').hidden = true; //reveal
+		     // document.getElementById('drawSubmit').hidden = true; // Reveal the next button
+		      //document.getElementById('instructionsSurprise').hidden = false; ;//can comment out this line if no text appears
+		 // }
+
+        //for (let im = 0; im < 13; im++) {
+		    //  $('#wPain').wPaint(
+		    //    'image', "./images/Image"+(im+1).toString()+".png");
+       // }
+
+
+
+		  function displayImage(imagenumber){
+		    // You pass this function an image number and it displays it in the experiment
+		     //document.getElementById('drawSubmit').hidden = false; // hide the Next button so they can't skip around
+		    // $('#wPain').attr('src', imgURLs[imagenumber]);
+		     //var code = "<img src='" + imgURLs[imagenumber] + "' width=500 height=500>"; // The code to insert into the HTML for the experiment. It displays the image at the same dimensions as the drawing interface.
+		     //document.getElementById('imagedisplay').hidden = false;
+		    // $('#wPain').wPaint({image: './images/Image1.png'});
+		     //$('#wPain').wPaint('image', code);
+		     //var imageData = $("#wPain").wPaint("image");
+             //$("#canvasImage").attr('src', imageData);
+		    // document.getElementById('imagedisplay').innerHTML = code;
+		     $('#wPain').wPaint('image', imgURLs[imagenumber]);
+		     var d = new Date();
+		     startTime = d.getTime();
+		     //var imageData = $("#wPain").wPaint("image");
+             //$("#canvasImage").attr('src', imageData);
+             document.getElementById('drawingdisplay').hidden = false;
+             document.getElementById('drawSubmit').hidden = false;
+             
+             
+		      //$('#wPain').wPaint({image: imgURLs[imagenumber]});
+            
+		    //sleep(200);
+		     //document.getElementById('imagedisplay').hidden = false;
+
+		   }
+
+          //these are functions that track partiicpant activity (i.e., if they click a button or move their mouse)
+          //if specified activity happens, a function is run
+          document.getElementById('acceptConsent').addEventListener('click', runPInstructions);
+          document.getElementById('startpr').addEventListener('click', runPractice);
+          //document.getElementById('startexp').addEventListener('click', runPInstructions);
+          document.getElementById('practiceSubmit').addEventListener('click', savePracImg);
+		  document.getElementById('startexp').addEventListener('click', RunExperiment);
+		  document.getElementById('drawSubmit').addEventListener('click', saveImg);
+		  document.getElementById('submitButton').addEventListener('click', quitPsychoJS);
+		  document.getElementById('wPain').addEventListener('mousedown', setClicking);
+		  
+
+
+        fetch("https://pipe.jspsych.org/api/data/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "*/*",
+              },
+              body: JSON.stringify({
+                experimentID: "mllsgxRBSA3r",
+                filename: "creativity_drawing.csv",
+                data: dataAsString,
+              }),
+        });
+		  
+		</script>
+
+
+
+
+	</form/>
+</body>
+</html>

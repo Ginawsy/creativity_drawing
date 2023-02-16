@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- February 5, 2021
+By: Wilma Bainbridge
+
+this is untouched code written by wilma
+
+Example 3: This script adds timed trials and multiple drawing interfaces to Example 2.
+This can allow the researcher to create a full psychophysics drawing experiment.
+
+This template experiment will be as follows:
+1. Participants see a first image for 5 seconds
+2. They are given unlimited time to draw the image
+3. Participants see a second image for 5 seconds
+4. They are given unimlited time to draw the image
+5. They are given some demographics questions.
+
+Also note that this code relies heavily on open source Javascript plugin wPaint.
+You can learn more about it here: https://wpaint.websanova.com/
+
+/-->
+
+<head>
+	<meta charset="utf-8"/>
+	<title>Example 3</title>
+
+	<!--- Let's put some CSS in here to make our buttons bigger and prettier -->
+	<style>
+	.animbutton {
+		background-color: #f2f2f2;
+		font-size: 40px;
+		border: 3px solid #000000;
+	}
+	.animbutton:hover {
+		background-color: #cccccc;
+	}
+	.animbutton:active {
+		background-color: #cccccc;
+		box-shadow: 0 5px #666;
+		transform: translateY(4px);
+	}
+  </style>
+
+</head>
+
+<body>
+
+	<form method="post" autocomplete="off">
+
+	<!------------------------------------------------------------------------>
+	<!-- Here is all the code that defines the HTML appearance of the page! -->
+
+
+		<!-- Put the buttons that start the experiment and progress through the different trials. This will also save the drawings when done drawing. Different buttons will be visible at different points in the experiment.-->
+		<div style="text-align:center">
+			<input type="button" name="start" id="startexp" value="Start" onClick="animateExperiment()" class="animbutton" />
+			<input type="button" name="next" id="nextbutton" value="Next" onClick="saveImg()" class="animbutton" hidden />
+		<!-- Notes about this submit button: 1) The submit button then sends the data to Amazon Mechanical Turk. The submit feature doesn't work without an experiment host.
+			If you run this code locally, "Submit" will refresh the page, which is normal behavior. -->
+			<input type="submit" id="submitButton" value="Submit" class="animbutton" hidden />
+		<br /><br />
+
+		<!-- Code for where to put the drawing interface -->
+		<div style="text-align: center">
+			<span id="imagedisplay" style="position:relative"><!--This is where other experimental info will display --></span>
+			<span id="drawingdisplay" hidden>
+				<div id="wPaint" style="position:relative; width:500px; height:500px; margin:50px auto 0 auto; border-style:solid; border-color:#000000; border-width:3px"></div> 
+			</span>
+		
+
+			<!-- These are hidden tags that save the drawings when they're done. Now there are 2 for the two drawings we are recording!-->
+			<input type="hidden" name="drawing1" id="draw1id" value="" />
+			<input type="hidden" name="drawing2" id="draw2id" value="" />
+			<!-- These are hidden tags that save the mouse movements for the 2 drawings -->
+			<input type="hidden" name="mousemove1" id="mousemove1id" value="" />
+			<input type="hidden" name="mousemove2" id="mousemove2id" value="" />
+			<!-- Save the locations of the edges of the canvas-->
+			<input type="hidden" name="wpaintleft" id="wpaintleftout" value = "" />
+			<input type="hidden" name="wpaintright" id="wpaintrightout" value = "" />
+			<input type="hidden" name="wpainttop" id="wpainttopout" value="" />
+			<input type="hidden" name="wpaintbottom" id="wpaintbottomout" value="" />
+
+			<!-- Examples of how to put in other types of questions -->
+
+			<span id="otherquestions" style="font-family:helvetica" hidden>
+				<br><br><br>
+   
+				<b>Age:</b>&nbsp;&nbsp;&nbsp;
+				<input type="text" name="age"/><br /><br>
+
+				<b>What type of device are you using?</b><br>
+				<input name="device" type="radio" id="desktop" value="desktop" /><label for="desktop">Desktop Computer</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="device" type="radio" id="laptop" value="laptop" /><label for="laptop"> Laptop</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="device" type="radio" id="tablet" value="tablet" /><label for="tablet"> Tablet</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="device" type="radio" id="smartphone" value="smartphone" /><label for="smartphone"> Smartphone</label><br><br>
+
+				<b>Which input method are you using right now?</b><br> <input name="inputdevice" type="radio" value="mouse" /><label for="desktop">Mouse</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp
+				<input name="inputdevice" type="radio" id="trackpad" value="trackpad" /><label for="trackpad"> Trackpad</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="joystick" value="joystick" /><label for="joystick"> Joystick</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="nub" value="nub" /><label for="nub"> Keyboard nub</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input name="inputdevice" type="radio" id="finger" value="finger" /><label for="finger"> Finger</label> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <input name="inputdevice" type="radio" id="stylus" value="stylus" /><label for="stylus"> Stylus</label><br><br>
+
+				<b>How would you rate your artistic abilities?</b><br>
+				Very poor <input type="radio" name="artabilities" id="art1" value="1"><label for="art1">1</label>
+				<input type="radio" name="artabilities" id="art2" value="2"><label for="art2"> 2</label>
+				<input type="radio" name="artabilities" id="art3" value="3"><label for="art3"> 3</label>
+				<input type="radio" name="artabilities" id="art4" value="4"><label for="art4"> 4</label>
+				<input type="radio" name="artabilities" id="art5" value="5"><label for="art5"> 5 </label>&nbsp;&nbsp; Very good<br><br>
+ 
+				<b>Please briefly list any experience you have with artistic training (e.g., art classes). Write N/A if none. </b><br>
+				<input type="text" name="artexperience" size="50"/><br /><br>
+			</span>
+		</div>
+
+	<!------------------------------------------------------------------------>
+	<!-- Here is all the code that does all the behind-the-scenes work! -->
+
+		<!-- This loads in all the plugins necessary. I have JQuery and WPaint hosted on my private server. I recommend you host them on your own
+		server so you are not dependent on my server, in case it goes down someday! --> 
+
+		<!-- jQuery UI -->
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/lib/jquery.1.10.2.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/lib/jquery.ui.core.1.10.3.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/lib/jquery.ui.widget.1.10.3.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/lib/jquery.ui.mouse.1.10.3.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/lib/jquery.ui.draggable.1.10.3.min.js"></script>
+      
+		<!-- wColorPicker -->
+		<link rel="Stylesheet" type="text/css" href="https://wilmabainbridge.com/research/wPaint-2.5.0/lib/wColorPicker.min.css" />
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/lib/wColorPicker.min.js"></script>
+
+		<!-- wPaint -->
+		<link rel="Stylesheet" type="text/css" href="https://wilmabainbridge.com/research/wPaint-2.5.0/wPaint.min.css" />
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/wPaint.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/plugins/main/wPaint.menu.main.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/plugins/text/wPaint.menu.text.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/plugins/shapes/wPaint.menu.main.shapes.min.js"></script>
+		<script type="text/javascript" src="https://wilmabainbridge.com/research/wPaint-2.5.0/plugins/file/wPaint.menu.main.file.min.js"></script>
+
+		<script type="text/javascript">
+		
+			// Now this is Javascript code that initializes the wPaint interface and gets image saving to work
+        
+			// * If you want to remove certain capabilities, you can do that here with code like:
+			// delete jQuery.fn.wPaint.menus.main.items.ellipse;
+			// * That will delete the ellipse features. You can look at jQuery.fn.wPaint.menus.main.items to see all your options.
+
+			// initialize wPaint
+			// Look into the wPaint documentation for what here can be changed!
+			$('#wPaint').wPaint({
+				path: 'https://wilmabainbridge.com/research/wPaint-2.5.0/',
+				bg: '#FFFFFF',
+				menuOffsetLeft: -50,
+				menuOffsetTop: -50,
+				mode: 'pencil',
+				lineWidth: '3',
+				strokeStyle: '#000000',
+				fillStyle: '#000000'
+				});
+
+			// Track mouse movements
+			// get canvas position
+			var rect = "";
+			var mousemovements = "";
+			var clicking = false;
+			var startTime = new Date().getTime();
+
+			// Save the drawing in the hidden input when this function is triggered
+			// This function is updated for Example 3!
+			function saveImg() {
+				// find which hidden element to update based on the trial number
+				drawid = 'draw' + drawingNumber + 'id';
+				moveid = 'mousemove' + drawingNumber + 'id';
+				document.getElementById(drawid).value = $('#wPaint').wPaint('image');
+				document.getElementById(moveid).value = mousemovements;
+
+				// Get the location of the wPaint canvas and save it in the hidden inputs
+				var rect = document.getElementById('wPaint').getBoundingClientRect();
+				document.getElementById('wpaintleftout').value = rect.left;
+				document.getElementById('wpaintrightout').value = rect.right;
+				document.getElementById('wpainttopout').value = rect.top;
+				document.getElementById('wpaintbottomout').value = rect.bottom;
+
+				// clear the interface and the mouse movements for the new image!
+				$('#wPaint').wPaint('clear');
+				mousemovements = '';
+				drawingNumber = drawingNumber + 1;
+				var d = new Date();
+				startTime = d.getTime();
+				experimentPhase = experimentPhase + 1;
+				animateExperiment(); // Continue onto the next part of the experiment
+			}
+
+			// Track when they're holding the mouse button down
+			$(document).mousedown(function(){
+				clicking = true;
+			});
+
+			// Save where the mouse is when it's moving while clicked
+			$(document).mousemove(function(e){
+				var d = new Date();   // get the time
+				var padding = 100; // extra pixel padding so don't miss drawing
+				if(clicking == false) return; // don't save data when the mouse isn't clicked
+				// Get the x and y coordinates of the click
+				var xcoord = e.pageX;
+				var ycoord = e.pageY;
+				
+				//if(xcoord >= rect.left-padding && xcoord <= rect.right+padding && ycoord >= rect.top && ycoord <= rect.bottom+padding){
+					var timeDiff = d.getTime() - startTime;
+					// Save the mouse movement as: X,Y,milliseconds-from-start;
+					console.log("(" + xcoord + "," + ycoord + ")");
+					mousemovements = mousemovements + xcoord + "," + ycoord + "," + timeDiff + ";";
+				//}
+			});
+
+			$(document).mouseup(function(){
+				clicking = false;
+				// Add in a marker that a drawing stroke ended: 9999,9999,9999;
+				mousemovements = mousemovements + "9999,9999,9999;";
+			});
+
+			/*******************************************************/
+			// New code for Example 3: Have multiple trials of drawing
+			
+			// Five phases of experiment:
+			// 1. Show image 1
+			// 2. Draw image 1
+			// 3. Show image 2
+			// 4. Draw image 2
+			// 5. Demographics questions
+
+			var experimentPhase = 1;
+			var drawingNumber = 1; // which drawing are we on?
+			var stimTime = 1000; // for how many ms do you want to show the image?
+			var imgURLs = new Array("https://www.wilmabainbridge.com/research/aphantasia/ims/high_kitchen.jpg","https://www.wilmabainbridge.com/research/aphantasia/ims/low_living_room.jpg");
+			// These are the images to be shown in the experiment
+
+			function animateExperiment(){ 
+				if (experimentPhase == 1) {
+					// Show the image for stimtime
+					document.getElementById('startexp').hidden = true; // take away the start button
+					displayImage(0); // Start with the 1st image. Note that Javascript starts with 0 as its first index!
+					setTimeout(animateExperiment, stimTime); // wait the stimtime, then go to the next phase of the experiment
+				} else if (experimentPhase == 2) {
+					// The drawing interface has already been loaded, but it's been hidden. So now we can show it!
+					document.getElementById('imagedisplay').innerHTML = ''; // hide the image
+					document.getElementById('drawingdisplay').hidden = false;
+					document.getElementById('nextbutton').hidden = false; // Reveal the next button
+					// The next phase will be triggered when people press the "Next" button.
+				} else if (experimentPhase == 3) {
+					// See how this is almost identical to phase 1? To make this code even more efficient for more trials, you could make it display an image each time you have an odd-numbered experimentPhase.
+					document.getElementById('drawingdisplay').hidden = true; // hide the drawing canvas
+					displayImage(1);
+					setTimeout(animateExperiment, stimTime);
+				} else if (experimentPhase == 4) {
+					// Show the drawing canvas again.
+					document.getElementById('imagedisplay').innerHTML = ''; // hide the image
+					document.getElementById('drawingdisplay').hidden = false;
+					document.getElementById('nextbutton').hidden = false; // Reveal the next button
+				} else if (experimentPhase == 5) {
+					// Finally, if it's the last phase, show the demographics questions!
+					document.getElementById('drawingdisplay').hidden = true; 
+					document.getElementById('otherquestions').hidden = false;
+					document.getElementById('nextbutton').hidden = true; // Hide the next button
+					document.getElementById('submitButton').hidden = false; // Reveal the submit button
+				}
+			}
+
+			function displayImage(imagenumber){
+				// You pass this function an image number and it displays it in the experiment
+				document.getElementById('nextbutton').hidden = true; // hide the Next button so they can't skip around
+				code = "<img src='" + imgURLs[imagenumber] + "' width=500 height=500>"; // The code to insert into the HTML for the experiment. It displays the image at the same dimensions as the drawing interface.
+				document.getElementById('imagedisplay').innerHTML = code;
+				experimentPhase = experimentPhase + 1;
+			}
+      </script>
+	</form>
+</body>
+</html>
