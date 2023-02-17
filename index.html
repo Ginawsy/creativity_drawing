@@ -328,7 +328,7 @@ You can learn more about it here: https://github.com/websanova/wPaint
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/log4javascript/1.4.9/log4javascript.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.2/xlsx.full.min.js"></script>
-        <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/psychopy@2.0.0/psychopy.js"></script> -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/psychopy@2.0.0/psychopy.js"></script>
 	<!-- -------------------------------------------------------------------- -->
         <!-- Start of JavaScript Code -->
 		<script type="module">
@@ -339,14 +339,18 @@ You can learn more about it here: https://github.com/websanova/wPaint
 		
         //import { PsychoJS } from './lib/core-2021.1.4.js';
 
-		import * as core from './psychojs-main/src/core/index.js';
-		import * as data from './psychojs-main/src/data/index.js';
-		import { ExperimentHandler } from './psychojs-main/src/data/ExperimentHandler.js';
-		import { Scheduler } from './psychojs-main/src/util/index.js';
-		import { PsychoJS } from './psychojs-main/src/index.js';
-		import * as visual from './psychojs-main/src/visual/index.js';
-		import * as sound from './psychojs-main/src/sound/index.js';
-		import * as util from './psychojs-main/src/util/index.js';
+		import { PsychoJS } from './lib/core-2020.2.js';
+		import * as core from './lib/core-2020.2.js';
+		import * as data from './lib/data-2020.2.js';
+		//import { TrialHandler } from './lib/data-2020.2.js';
+		import { ExperimentHandler } from './lib/data-2020.2.js';
+		//import { data } from './lib/psychojs-2021.2.3.js';
+	//	const { TrialHandler } = data;
+		import { Scheduler } from './lib/util-2020.2.js';
+		import * as visual from './lib/visual-2020.2.js';
+		import * as sound from './lib/sound-2020.2.js';
+		import * as util from './lib/util-2020.2.js';
+
 
         //import { createTrialHandler } from 'psychopy/iohub/datastore/util';
         //import psychopy.iohub.util;
