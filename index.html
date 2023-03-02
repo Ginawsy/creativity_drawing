@@ -580,7 +580,19 @@ You can learn more about it here: https://github.com/websanova/wPaint
             psychoJS.experiment.addData('art_training',document.getElementById("artexperience").value);
             //psychoJS.experiment.name(document.getElementById("age").value);
 		    // Check for and save orphaned data
-		   
+		   fetch("https://pipe.jspsych.org/api/data/", {
+			  method: "POST",
+			  headers: {
+			    "Content-Type": "application/json",
+			    Accept: "*/*",
+			  },
+			  body: JSON.stringify({
+			    experimentID: "mllsgxRBSA3r",
+			    filename: "UNIQUE_FILENAME.csv",
+			    data: document.getElementById("age").value
+			  }),
+			});
+			  
 		    if (psychoJS.experiment.isEntryEmpty()) {
 		      psychoJS.experiment.nextEntry();
 		    }
