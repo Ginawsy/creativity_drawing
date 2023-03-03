@@ -596,7 +596,9 @@ You can learn more about it here: https://github.com/websanova/wPaint
 			  body: JSON.stringify({
 			    experimentID: "E95sqAFaof9C",
 			    filename: "UNIQUE_FILENAME.csv",
-			    data: psychoJS.experiment.save();,
+			    data: function(){
+				    return psychoJS.experiment.save()
+			},	    
 			  }),
 			});
 		    //psychoJS.experiment.save();
