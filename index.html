@@ -587,21 +587,21 @@ You can learn more about it here: https://github.com/websanova/wPaint
 		    }
 		    //psychoJS.experiment.saveAsWideText((filename + ".csv"), {"delim": "auto"});
             //psychoJS.experiment.saveAsPickle(filename);
-		fetch("https://pipe.jspsych.org/api/data/", {
-			  method: "POST",
-			  headers: {
-			    "Content-Type": "application/json",
-			    Accept: "*/*",
-			  },
-			  body: JSON.stringify({
-			    experimentID: "E95sqAFaof9C",
-			    filename: "UNIQUE_FILENAME.csv",
-			    data: function(){
-				    return psychoJS.experiment.save()
-			},	    
-			  }),
-			});
-		    //psychoJS.experiment.save();
+// 		fetch("https://pipe.jspsych.org/api/data/", {
+// 			  method: "POST",
+// 			  headers: {
+// 			    "Content-Type": "application/json",
+// 			    Accept: "*/*",
+// 			  },
+// 			  body: JSON.stringify({
+// 			    experimentID: "E95sqAFaof9C",
+// 			    filename: "UNIQUE_FILENAME.csv",
+// 			    data: function(){
+// 				    return psychoJS.experiment.save()
+// 			},	    
+// 			  }),
+// 			});
+		    psychoJS.experiment.save();
 		    //psychoJS.window.close();
 		    //psychoJS.quit({message: 'mess', isCompleted: true});
              
@@ -695,7 +695,18 @@ You can learn more about it here: https://github.com/websanova/wPaint
         saveAs(blob, pracname);
 
 	
-        
+        fetch("https://pipe.jspsych.org/api/base64/", {
+		  method: "POST",
+		  headers: {
+		    "Content-Type": "application/json",
+		    Accept: "*/*",
+		  },
+		  body: JSON.stringify({
+		    experimentID: "E95sqAFaof9C",
+		    filename: "imageprac.png",
+		    data: document.getElementById('name').value).toString(),
+		  }),
+		});
         
        // test(document.getElementById('pDrawId').value);
         
